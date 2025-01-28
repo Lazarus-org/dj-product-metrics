@@ -21,6 +21,7 @@ class ProductAdmin(admin.ModelAdmin):
 @admin.register(SalesData)
 class SalesDataAdmin(admin.ModelAdmin):
     list_display = ('product', 'date', 'units_sold', 'revenue')
+    autocomplete_fields = ('product',)
     search_fields = ('product__name', 'date')
     list_filter = ('product', 'date')
     date_hierarchy = 'date'
@@ -33,6 +34,7 @@ class SalesDataAdmin(admin.ModelAdmin):
 @admin.register(UserEngagement)
 class UserEngagementAdmin(admin.ModelAdmin):
     list_display = ('product', 'date', 'active_users', 'churn_rate')
+    autocomplete_fields = ('product',)
     search_fields = ('product__name', 'date')
     list_filter = ('product', 'date')
     date_hierarchy = 'date'
@@ -45,6 +47,7 @@ class UserEngagementAdmin(admin.ModelAdmin):
 @admin.register(CustomerFeedback)
 class CustomerFeedbackAdmin(admin.ModelAdmin):
     list_display = ('product', 'date', 'rating', 'feedback')
+    autocomplete_fields = ('product',)
     search_fields = ('product__name', 'date', 'feedback')
     list_filter = ('product', 'date', 'rating')
     date_hierarchy = 'date'
