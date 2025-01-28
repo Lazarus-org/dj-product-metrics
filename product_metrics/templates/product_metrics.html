@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ product.name }} Metrics</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .chart-container {
+            margin-bottom: 2rem;
+            position: relative;
+        }
+        .card {
+            margin-bottom: 1.5rem;
+            border: none;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        .card-header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.5rem;
+            border-radius: 10px 10px 0 0;
+        }
+        .card-header h2 {
+            margin: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+        .card-body {
+            padding: 1.5rem;
+        }
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: #343a40;
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">{{ product.name }} Metrics</h1>
+
+        <!-- Sales Data -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Sales Data</h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="salesChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- User Engagement -->
+        <div class="card">
+            <div class="card-header">
+                <h2>User Engagement</h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="engagementChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customer Feedback -->
+        <div class="card">
+            <div class="card-header">
+                <h2>Customer Feedback</h2>
+            </div>
+            <div class="card-body">
+                <div class="chart-container">
+                    <canvas id="feedbackChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Modern color palette
+        const colors = {
+            blue: 'rgba(54, 162, 235, 0.8)',
+            purple: 'rgba(153, 102, 255, 0.8)',
+            green: 'rgba(75, 192, 192, 0.8)',
+            red: 'rgba(255, 99, 132, 0.8)',
+            yellow: 'rgba(255, 206, 86, 0.8)',
+            teal: 'rgba(0, 128, 128, 0.8)',
+            orange: 'rgba(255, 159, 64, 0.8)',
+        };
+
+        // Sales Chart
+        const salesCtx = document.getElementById('salesChart').getContext('2d');
+        new Chart(salesCtx, {
+            type: 'line',
+            data: {
+                labels: {{ sales_labels|safe }},
+                datasets: [
+                    {
+                        label: 'Revenue',
+                        data: {{ sales_revenue|safe }},
+                        borderColor: colors.green,
+                        backgroundColor: colors.green,
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointBackgroundColor: colors.green,
+                        fill: false,
+                    },
+                    {
+                        label: 'Units Sold',
+                        data: {{ sales_units_sold|safe }},
+                        borderColor: colors.purple,
+                        backgroundColor: colors.purple,
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        pointBackgroundColor: colors.purple,
+                        fill: false,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 1500,
+                    easing: 'easeInOutQuart',
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e9ecef',
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: '#e9ecef',
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#343a40',
+                        }
+                    }
+                }
+            }
+        });
+
+        // User Engagement Chart
+        const engagementCtx = document.getElementById('engagementChart').getContext('2d');
+        new Chart(engagementCtx, {
+            type: 'bar',
+            data: {
+                labels: {{ engagement_labels|safe }},
+                datasets: [
+                    {
+                        label: 'Active Users',
+                        data: {{ active_users|safe }},
+                        backgroundColor: colors.blue,
+                        borderColor: colors.blue,
+                        borderWidth: 1,
+                    },
+                    {
+                        label: 'Churn Rate (%)',
+                        data: {{ churn_rate|safe }},
+                        backgroundColor: colors.red,
+                        borderColor: colors.red,
+                        borderWidth: 1,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 1500,
+                    easing: 'easeInOutQuart',
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: '#e9ecef',
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: '#e9ecef',
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#343a40',
+                        }
+                    }
+                }
+            }
+        });
+
+        // Customer Feedback Chart
+        const feedbackCtx = document.getElementById('feedbackChart').getContext('2d');
+        new Chart(feedbackCtx, {
+            type: 'bar', // Use bar type for feedback counts
+            data: {
+                labels: {{ feedback_labels|safe }},
+                datasets: [
+                    {
+                        label: 'Feedback Count',
+                        data: {{ feedback_counts|safe }},
+                        backgroundColor: colors.blue,
+                        borderColor: colors.blue,
+                        borderWidth: 1,
+                        yAxisID: 'y1', // Use a secondary y-axis
+                    },
+                    {
+                        label: 'Average Rating',
+                        data: {{ average_ratings|safe }},
+                        type: 'line', // Overlay line chart for average rating
+                        borderColor: colors.yellow,
+                        backgroundColor: colors.yellow,
+                        borderWidth: 2,
+                        pointRadius: 5,
+                        fill: false,
+                        yAxisID: 'y2', // Use a secondary y-axis
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                animation: {
+                    duration: 1500,
+                    easing: 'easeInOutQuart',
+                },
+                scales: {
+                    y1: {
+                        beginAtZero: true,
+                        position: 'left',
+                        grid: {
+                            color: '#e9ecef',
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Feedback Count',
+                        },
+                    },
+                    y2: {
+                        beginAtZero: true,
+                        max: 5, // Ratings are out of 5
+                        position: 'right',
+                        grid: {
+                            drawOnChartArea: false, // Disable gridlines for secondary y-axis
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                        },
+                        title: {
+                            display: true,
+                            text: 'Average Rating',
+                        },
+                    },
+                    x: {
+                        grid: {
+                            color: '#e9ecef',
+                        },
+                        ticks: {
+                            color: '#6c757d',
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#343a40',
+                        }
+                    }
+                }
+            }
+        });
+
+    </script>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
