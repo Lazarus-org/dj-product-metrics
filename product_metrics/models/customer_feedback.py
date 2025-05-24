@@ -31,9 +31,9 @@ class CustomerFeedback(models.Model):
         verbose_name=_("Date"),
         help_text=_("The date of the customer feedback."),
         db_comment="Stores the date of the customer feedback.",
-        db_index=True
+        db_index=True,
     )
-    rating = models.FloatField(
+    rating = models.PositiveSmallIntegerField(
         validators=[MinValueValidator(0), MaxValueValidator(5)],
         verbose_name=_("Rating"),
         help_text=_("The rating given by the customer (out of 5)."),
@@ -51,7 +51,6 @@ class CustomerFeedback(models.Model):
         db_table_comment = "Stores customer feedback for products."
         verbose_name = _("Customer Feedback")
         verbose_name_plural = _("Customer Feedback")
-        unique_together = ["product", "date"]
 
     def __str__(self):
         return f"{self.product.name} - {self.date}"

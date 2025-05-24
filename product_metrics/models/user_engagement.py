@@ -30,7 +30,7 @@ class UserEngagement(models.Model):
         verbose_name=_("Date"),
         help_text=_("The date of the user engagement data."),
         db_comment="Stores the date of the user engagement data.",
-        db_index=True
+        db_index=True,
     )
     active_users = models.PositiveIntegerField(
         validators=[MinValueValidator(0)],
