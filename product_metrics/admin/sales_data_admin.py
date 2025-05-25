@@ -1,10 +1,12 @@
 from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from product_metrics.models import SalesData
+from product_metrics.mixins.admin.base import BaseModelAdmin
+from product_metrics.settings.conf import config
 
 
-@admin.register(SalesData)
-class SalesDataAdmin(admin.ModelAdmin):
+@admin.register(SalesData, site=config.admin_site_class)
+class SalesDataAdmin(BaseModelAdmin):
     list_display = ("product", "date", "units_sold", "revenue", "revenue_per_unit")
     autocomplete_fields = ("product", "currency")
     search_fields = ("product__name", "date")

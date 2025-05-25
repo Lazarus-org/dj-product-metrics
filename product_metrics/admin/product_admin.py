@@ -2,10 +2,12 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django.db.models import Avg
 from product_metrics.models import Product
+from product_metrics.mixins.admin.base import BaseModelAdmin
+from product_metrics.settings.conf import config
 
 
-@admin.register(Product)
-class ProductAdmin(admin.ModelAdmin):
+@admin.register(Product, site=config.admin_site_class)
+class ProductAdmin(BaseModelAdmin):
     list_display = ("name", "is_active", "created_at", "updated_at", "average_rating")
     search_fields = ("name", "description")
     list_filter = ("is_active", "created_at", "updated_at")
