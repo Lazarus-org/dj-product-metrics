@@ -2,10 +2,12 @@ from django.contrib import admin
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import format_html
 from product_metrics.models import CustomerFeedback
+from product_metrics.mixins.admin.base import BaseModelAdmin
+from product_metrics.settings.conf import config
 
 
-@admin.register(CustomerFeedback)
-class CustomerFeedbackAdmin(admin.ModelAdmin):
+@admin.register(CustomerFeedback, site=config.admin_site_class)
+class CustomerFeedbackAdmin(BaseModelAdmin):
     list_display = ("product", "date", "rating", "rating_stars", "feedback_preview")
     autocomplete_fields = ("product",)
     search_fields = ("product__name", "date", "feedback")
