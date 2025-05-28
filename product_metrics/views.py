@@ -29,6 +29,52 @@ class BaseView:
         return super().dispatch(request, *args, **kwargs)
 
 
+class ProductMetricsListView(BaseView, ListView):
+    """View for displaying a list of products with their key metrics."""
+
+    template_name = "product_metrics_list.html"
+    model = Product
+    context_object_name = "products"
+
+    def get_context_data(self, **kwargs):
+        """Get the context data for the template."""
+        context = super().get_context_data(**kwargs)
+        context["products"] = []
+
+        for product in self.get_queryset():
+            # Get latest sales data
+            latest_sales = (
+                SalesData.objects.filter(product=product).order_by("-date").first()
+            )
+
+            # Get latest engagement data
+            latest_engagement = (
+                UserEngagement.objects.filter(product=product).order_by("-date").first()
+            )
+
+            # Get aggregated feedback data
+            feedback_stats = CustomerFeedback.objects.filter(product=product).aggregate(
+                avg_rating=Avg("rating"), total_feedback=Count("id")
+            )
+
+            product_data = {
+                "product": product,
+                "latest_revenue": latest_sales.revenue if latest_sales else 0,
+                "latest_units_sold": latest_sales.units_sold if latest_sales else 0,
+                "active_users": (
+                    latest_engagement.active_users if latest_engagement else 0
+                ),
+                "churn_rate": (
+                    round(latest_engagement.churn_rate, 2) if latest_engagement else 0
+                ),
+                "average_rating": feedback_stats["avg_rating"] or 0,
+                "total_feedback": feedback_stats["total_feedback"] or 0,
+            }
+            context["products"].append(product_data)
+
+        return context
+
+
 class ProductMetricsDetailView(BaseView, DetailView):
     """View for displaying detailed metrics for a specific product."""
 
