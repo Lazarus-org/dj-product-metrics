@@ -6,6 +6,8 @@
     <title>{{ product.name }} Metrics</title>
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -16,6 +18,10 @@
         .chart-container {
             margin-bottom: 2rem;
             position: relative;
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
         }
         .card {
             margin-bottom: 1.5rem;
@@ -49,16 +55,87 @@
             color: #343a40;
             margin-bottom: 2rem;
         }
+        .back-link {
+            color: #6c757d;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            margin-bottom: 1rem;
+            transition: color 0.3s ease;
+        }
+        .back-link:hover {
+            color: #343a40;
+        }
+        .back-link i {
+            margin-right: 0.5rem;
+        }
+        .metric-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .metric-item {
+            background: white;
+            padding: 1rem;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #343a40;
+            margin: 0.5rem 0;
+        }
+        .metric-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .metric-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
     </style>
 </head>
 <body>
     <div class="container mt-5">
+        <a href="{% url 'product_metrics:product_metrics_list' %}" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+        
         <h1 class="text-center mb-4">{{ product.name }} Metrics</h1>
+
+        <!-- Metric Summary -->
+        <div class="metric-summary">
+            <div class="metric-item">
+                <i class="fas fa-dollar-sign metric-icon text-success"></i>
+                <div class="metric-value">${{ sales_revenue|last|default:"0"|floatformat:2 }}</div>
+                <div class="metric-label">Latest Revenue</div>
+            </div>
+            <div class="metric-item">
+                <i class="fas fa-shopping-cart metric-icon text-primary"></i>
+                <div class="metric-value">{{ sales_units_sold|last|default:"0" }}</div>
+                <div class="metric-label">Latest Units Sold</div>
+            </div>
+            <div class="metric-item">
+                <i class="fas fa-users metric-icon text-info"></i>
+                <div class="metric-value">{{ active_users|last|default:"0" }}</div>
+                <div class="metric-label">Active Users</div>
+            </div>
+            <div class="metric-item">
+                <i class="fas fa-chart-line metric-icon {% if churn_rate|last|default:0 < 5 %}text-success{% else %}text-danger{% endif %}"></i>
+                <div class="metric-value">{{ churn_rate|last|default:"0" }}%</div>
+                <div class="metric-label">Churn Rate</div>
+            </div>
+        </div>
 
         <!-- Sales Data -->
         <div class="card">
             <div class="card-header">
-                <h2>Sales Data</h2>
+                <h2><i class="fas fa-chart-line me-2"></i>Sales Data</h2>
             </div>
             <div class="card-body">
                 <div class="chart-container">
@@ -70,7 +147,7 @@
         <!-- User Engagement -->
         <div class="card">
             <div class="card-header">
-                <h2>User Engagement</h2>
+                <h2><i class="fas fa-users me-2"></i>User Engagement</h2>
             </div>
             <div class="card-body">
                 <div class="chart-container">
@@ -82,7 +159,7 @@
         <!-- Customer Feedback -->
         <div class="card">
             <div class="card-header">
-                <h2>Customer Feedback</h2>
+                <h2><i class="fas fa-star me-2"></i>Customer Feedback</h2>
             </div>
             <div class="card-body">
                 <div class="chart-container">
@@ -102,6 +179,51 @@
             yellow: 'rgba(255, 206, 86, 0.8)',
             teal: 'rgba(0, 128, 128, 0.8)',
             orange: 'rgba(255, 159, 64, 0.8)',
+        };
+
+        // Common chart options
+        const commonOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+                duration: 1500,
+                easing: 'easeInOutQuart',
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    grid: {
+                        color: '#e9ecef',
+                    },
+                    ticks: {
+                        color: '#6c757d',
+                    }
+                },
+                x: {
+                    grid: {
+                        color: '#e9ecef',
+                    },
+                    ticks: {
+                        color: '#6c757d',
+                    }
+                }
+            },
+            plugins: {
+                legend: {
+                    labels: {
+                        color: '#343a40',
+                    }
+                },
+                tooltip: {
+                    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+                    titleColor: '#343a40',
+                    bodyColor: '#6c757d',
+                    borderColor: '#e9ecef',
+                    borderWidth: 1,
+                    padding: 10,
+                    boxPadding: 5,
+                }
+            }
         };
 
         // Sales Chart
@@ -133,39 +255,7 @@
                     }
                 ]
             },
-            options: {
-                responsive: true,
-                animation: {
-                    duration: 1500,
-                    easing: 'easeInOutQuart',
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: '#e9ecef',
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: '#e9ecef',
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#343a40',
-                        }
-                    }
-                }
-            }
+            options: commonOptions
         });
 
         // User Engagement Chart
@@ -191,45 +281,13 @@
                     }
                 ]
             },
-            options: {
-                responsive: true,
-                animation: {
-                    duration: 1500,
-                    easing: 'easeInOutQuart',
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: '#e9ecef',
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                        }
-                    },
-                    x: {
-                        grid: {
-                            color: '#e9ecef',
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                        }
-                    }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#343a40',
-                        }
-                    }
-                }
-            }
+            options: commonOptions
         });
 
         // Customer Feedback Chart
         const feedbackCtx = document.getElementById('feedbackChart').getContext('2d');
         new Chart(feedbackCtx, {
-            type: 'bar', // Use bar type for feedback counts
+            type: 'bar',
             data: {
                 labels: {{ feedback_labels|safe }},
                 datasets: [
@@ -239,55 +297,44 @@
                         backgroundColor: colors.blue,
                         borderColor: colors.blue,
                         borderWidth: 1,
-                        yAxisID: 'y1', // Use a secondary y-axis
+                        yAxisID: 'y1',
                     },
                     {
                         label: 'Average Rating',
                         data: {{ average_ratings|safe }},
-                        type: 'line', // Overlay line chart for average rating
+                        type: 'line',
                         borderColor: colors.yellow,
                         backgroundColor: colors.yellow,
                         borderWidth: 2,
                         pointRadius: 5,
+                        pointBackgroundColor: colors.yellow,
                         fill: false,
-                        yAxisID: 'y2', // Use a secondary y-axis
+                        yAxisID: 'y',
                     }
                 ]
             },
             options: {
-                responsive: true,
-                animation: {
-                    duration: 1500,
-                    easing: 'easeInOutQuart',
-                },
+                ...commonOptions,
                 scales: {
-                    y1: {
+                    y: {
                         beginAtZero: true,
                         position: 'left',
-                        grid: {
-                            color: '#e9ecef',
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                        },
-                        title: {
-                            display: true,
-                            text: 'Feedback Count',
-                        },
-                    },
-                    y2: {
-                        beginAtZero: true,
-                        max: 5, // Ratings are out of 5
-                        position: 'right',
-                        grid: {
-                            drawOnChartArea: false, // Disable gridlines for secondary y-axis
-                        },
-                        ticks: {
-                            color: '#6c757d',
-                        },
                         title: {
                             display: true,
                             text: 'Average Rating',
+                            color: '#6c757d',
+                        },
+                    },
+                    y1: {
+                        beginAtZero: true,
+                        position: 'right',
+                        title: {
+                            display: true,
+                            text: 'Feedback Count',
+                            color: '#6c757d',
+                        },
+                        grid: {
+                            drawOnChartArea: false,
                         },
                     },
                     x: {
@@ -298,17 +345,9 @@
                             color: '#6c757d',
                         }
                     }
-                },
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#343a40',
-                        }
-                    }
                 }
             }
         });
-
     </script>
 
     <!-- Bootstrap JS -->
