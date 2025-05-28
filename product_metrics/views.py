@@ -1,6 +1,5 @@
 from django.core.exceptions import PermissionDenied
 from django.db.models import Count, Avg
-from django.shortcuts import get_object_or_404
 from django.views.generic import ListView, DetailView
 from product_metrics.models import Product, SalesData, UserEngagement, CustomerFeedback
 from product_metrics.settings.conf import config
